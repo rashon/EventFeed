@@ -1,4 +1,4 @@
-git remote ad# EventFeed
+# PriceTracker
 
 EventFeed is an Android application designed to help users monitor the event feed provided by a web application. Built with modern Android development practices, it utilizes Jetpack Compose for the UI and follows a clean architecture pattern.
 
