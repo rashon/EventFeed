@@ -13,7 +13,7 @@ import com.example.eventfeed.ui.profile.UserProfileScreen
 fun AppNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "login") {
 
-        composable("login") { LoginScreen(onLogin = { navController.navigate("events") }) }
+        composable("login") { LoginScreen(onLoginSuccess = { navController.navigate("events") }) }
 
         composable("events") { EventListScreen(onOpen = { id -> navController.navigate("detail/$id") }) }
 
