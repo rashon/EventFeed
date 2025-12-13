@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -30,16 +31,54 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
 }
 
 dependencies {
 
+// --------------------------------------------------------------------------
+// Core Kotlin & Android Dependencies
+// --------------------------------------------------------------------------
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+// --------------------------------------------------------------------------
+// Compose Setup & UI
+// --------------------------------------------------------------------------
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.material.icons.extended.android)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+
+// --------------------------------------------------------------------------
+// Navigation
+// --------------------------------------------------------------------------
+    implementation(libs.androidx.navigation.compose)
+
+// --------------------------------------------------------------------------
+// Dependency Injection (Koin)
+// --------------------------------------------------------------------------
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
+// --------------------------------------------------------------------------
+// Networking (Ktor & Serialization)
+// --------------------------------------------------------------------------
+
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+
+// --------------------------------------------------------------------------
+// Testing
+// --------------------------------------------------------------------------
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
