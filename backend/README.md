@@ -70,7 +70,9 @@ Lists events with pagination.
       "location": "Location 1",
       "organizer": {
         "id": 1,
-        "username": "admin"
+        "username": "admin",
+        "name": "Admin User",
+        "email": "admin@eventfeed.com"
       }
     },
     ...
@@ -95,7 +97,9 @@ Gets details of a specific event.
   "location": "Location 1",
   "organizer": {
     "id": 1,
-    "username": "admin"
+    "username": "admin",
+    "name": "Admin User",
+    "email": "admin@eventfeed.com"
   }
 }
 ```
