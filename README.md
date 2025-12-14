@@ -1,4 +1,4 @@
-# PriceTracker
+# EventFeed
 
 EventFeed is an Android application designed to help users monitor the event feed provided by a web application. Built with modern Android development practices, it utilizes Jetpack Compose for the UI and follows a clean architecture pattern.
 
@@ -14,9 +14,42 @@ EventFeed is an Android application designed to help users monitor the event fee
 *   **Language:** [Kotlin](https://kotlinlang.org/)
 *   **UI Framework:** [Jetpack Compose](https://developer.android.com/jetbrains/compose)
 *   **Architecture:** MVVM (Model-View-ViewModel)
-*   **State Management:**
+*   **State Management:** Kotlin Flows + StateFlow
 *   **Design:** Material Design 3 (Material3)
 
+## 🖥 Backend (Go)
+
+A small Go server provides the API used by the app. The repo contains a Go module (`go.mod`) and a lightweight HTTP server exposing the main endpoints used by the Android client.
+
+Quick overview:
+*   Language: Go (module enabled)
+*   Default port: `8080`
+*   Endpoints:
+    *   `GET /events` — returns a list of events (used by the event feed)
+    *   `GET /profile` — returns the current user profile (used by the User Profile screen)
+
+### Running locally
+
+Prerequisites: Go 1.20\+ installed.
+
+Build and run:
+# bash
+* cd backend   # or the folder that contains main/cmd
+* go build -o eventserver ./cmd/server
+* ./eventserver
+# or run directly:
+
+* go run ./cmd/server
+
+# Docker
+* Build and run with Docker (if a Dockerfile is present):
+* docker build -t eventserver:local .
+* docker run -p 8080:8080 eventserver:local
+
+
+## Development notes
+* The Go server is intentionally lightweight to make local testing easy.
+* If you change the server address/port, update the Android client baseUrl in NetworkModule (see installation step 3) to point to the running backend (for example http://10.0.2.2:8080 for the emulator).
 
 ## 🚀 Getting Started
 
