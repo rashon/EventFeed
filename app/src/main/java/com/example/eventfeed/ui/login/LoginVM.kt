@@ -1,5 +1,6 @@
 package com.example.eventfeed.ui.login
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventfeed.data.auth.AuthRepository
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+@Stable
 class LoginVM(private val repo: AuthRepository) : ViewModel() {
 
     private val _ui = MutableStateFlow(LoginUiState())

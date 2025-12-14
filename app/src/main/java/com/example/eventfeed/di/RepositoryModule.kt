@@ -2,6 +2,8 @@ package com.example.eventfeed.di
 
 import com.example.eventfeed.data.auth.AuthRepository
 import com.example.eventfeed.data.auth.AuthRepositoryImpl
+import com.example.eventfeed.data.event.EventsRepository
+import com.example.eventfeed.data.event.EventsRepositoryImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -22,4 +24,6 @@ val repositoryModule = module {
     single<AuthRepository> {
         AuthRepositoryImpl(get(), get(named("baseUrl")))
     }
+
+    single<EventsRepository> { EventsRepositoryImpl(get(), get(named("baseUrl")), get()) }
 }
