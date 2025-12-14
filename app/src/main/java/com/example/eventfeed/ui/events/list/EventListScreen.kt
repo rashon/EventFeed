@@ -42,7 +42,11 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventListScreen(onOpen: (Long) -> Unit, viewModel: EventListVM = koinViewModel()) {
+fun EventListScreen(
+    onOpen: (Long) -> Unit,
+    onProfileClicked: () -> Unit,
+    viewModel: EventListVM = koinViewModel()
+) {
 
     val events by viewModel.events.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
@@ -90,9 +94,7 @@ fun EventListScreen(onOpen: (Long) -> Unit, viewModel: EventListVM = koinViewMod
                         }
 
                         // profile button
-                        IconButton(onClick = {
-                            // handle profile click (navigate to profile screen)
-                        }) {
+                        IconButton(onClick = { onProfileClicked() }) {
                             Icon(Icons.Default.AccountCircle, contentDescription = "Profile")
                         }
                     }

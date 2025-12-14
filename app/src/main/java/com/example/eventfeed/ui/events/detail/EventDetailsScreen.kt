@@ -38,6 +38,7 @@ import org.koin.core.parameter.parametersOf
 fun EventDetailScreen(
     eventId: String,
     onBack: () -> Unit,
+    onProfileClicked: () -> Unit,
     viewModel: EventDetailsVM = koinViewModel(parameters = { parametersOf(eventId) })
 ) {
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
@@ -92,9 +93,7 @@ fun EventDetailScreen(
                             }
                         }
 
-                        IconButton(onClick = {
-                            // profile action placeholder
-                        }) {
+                        IconButton(onClick = { onProfileClicked() }) {
                             Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
                         }
                     }

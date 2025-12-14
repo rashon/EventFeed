@@ -1,5 +1,6 @@
 package com.example.eventfeed.ui.events.detail
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventfeed.data.event.EventsRepository
@@ -13,6 +14,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Stable
 class EventDetailsVM(
     private val repo: EventsRepository,
     private val eventId: String

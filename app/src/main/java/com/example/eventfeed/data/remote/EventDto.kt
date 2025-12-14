@@ -1,4 +1,4 @@
-package com.example.eventfeed.data.event.remote
+package com.example.eventfeed.data.remote
 
 import com.example.eventfeed.domain.model.Event
 import kotlinx.serialization.Serializable

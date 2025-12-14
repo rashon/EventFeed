@@ -15,13 +15,22 @@ fun AppNavHost(navController: NavHostController) {
 
         composable("login") { LoginScreen(onLoginSuccess = { navController.navigate("events") }) }
 
-        composable("events") { EventListScreen(onOpen = { id -> navController.navigate("detail/$id") }) }
+        composable("events") {
+            EventListScreen(
+                onOpen = { id -> navController.navigate("detail/$id") },
+                onProfileClicked = { navController.navigate("profile") })
+        }
 
         composable("detail/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: return@composable
-            EventDetailScreen(eventId = id, onBack = { navController.navigate("events") })
+            EventDetailScreen(
+                eventId = id,
+                onBack = { navController.navigate("events") },
+                onProfileClicked = {
+                    navController.navigate("profile")
+                })
         }
 
-        composable("profile") { UserProfileScreen() }
+        composable("profile") { UserProfileScreen(onBack = { navController.navigateUp() }) }
     }
 }

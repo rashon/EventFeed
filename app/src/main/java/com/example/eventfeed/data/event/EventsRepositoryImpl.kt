@@ -1,14 +1,13 @@
 package com.example.eventfeed.data.event
 
-import com.example.eventfeed.data.event.remote.EventDto
-import com.example.eventfeed.data.event.remote.EventsResponseDto
 import com.example.eventfeed.data.local.AppDatabase
 import com.example.eventfeed.data.local.toDomain
 import com.example.eventfeed.data.local.toEntity
+import com.example.eventfeed.data.remote.EventDto
+import com.example.eventfeed.data.remote.EventsResponseDto
 import com.example.eventfeed.domain.model.Event
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import kotlinx.coroutines.Dispatchers
@@ -30,11 +29,6 @@ class EventsRepositoryImpl(
                 val response: EventsResponseDto = client.get("$baseUrl/events") {
                     parameter("page", page)
                     parameter("size", pageSize)
-                    timeout {
-                        requestTimeoutMillis = 2_500L
-                        connectTimeoutMillis = 2_500L
-                        socketTimeoutMillis = 2_500L
-                    }
                 }.body()
 
                 val dtos: List<EventDto> = response.events
