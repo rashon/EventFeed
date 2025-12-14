@@ -1,4 +1,4 @@
-package com.example.eventfeed.ui.events
+package com.example.eventfeed.ui.events.list
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel

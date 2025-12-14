@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.eventfeed.ui.events.EventDetailScreen
-import com.example.eventfeed.ui.events.EventListScreen
+import com.example.eventfeed.ui.events.detail.EventDetailScreen
+import com.example.eventfeed.ui.events.list.EventListScreen
 import com.example.eventfeed.ui.login.LoginScreen
 import com.example.eventfeed.ui.profile.UserProfileScreen
 
@@ -19,7 +19,7 @@ fun AppNavHost(navController: NavHostController) {
 
         composable("detail/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: return@composable
-            EventDetailScreen(eventId = id)
+            EventDetailScreen(eventId = id, onBack = { navController.navigate("events") })
         }
 
         composable("profile") { UserProfileScreen() }

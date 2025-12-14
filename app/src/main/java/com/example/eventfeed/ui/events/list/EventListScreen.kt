@@ -1,4 +1,4 @@
-package com.example.eventfeed.ui.events
+package com.example.eventfeed.ui.events.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
