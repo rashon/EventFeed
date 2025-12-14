@@ -36,6 +36,17 @@ Authenticates a user and returns a dummy token.
 }
 ```
 
+### GET /profile
+Returns the current user's profile details (name and email).
+
+**Response (200):**
+```json
+{
+  "name": "Admin User",
+  "email": "admin@eventfeed.com"
+}
+```
+
 ### GET /events
 Lists events with pagination.
 
@@ -106,7 +117,7 @@ Streams a large file (default 1 GiB of random bytes).
 
 ## Data Structures
 
-- **User**: {id, username, password (hidden)}
+- **User**: {id, username, password (hidden), name, email}
 - **Event**: {id, title, description, start, end, location, organizer}
 
 ## Testing

@@ -16,6 +16,8 @@ type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"-"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
 }
 
 type Event struct {
@@ -35,7 +37,7 @@ var (
 
 func seedData() {
 	users = map[string]User{
-		"admin": {ID: 1, Username: "admin", Password: "password"},
+		"admin": {ID: 1, Username: "admin", Password: "password", Name: "Admin User", Email: "admin@eventfeed.com"},
 	}
 
 	organizer := users["admin"]
@@ -61,6 +63,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/login", handleLogin)
+	r.GET("/profile", handleProfile)
 	r.GET("/events", handleListEvents)
 	r.GET("/events/:id", handleGetEvent)
 	r.GET("/download/:file_id", handleDownload)
@@ -85,6 +88,16 @@ func handleLogin(c *gin.Context) {
 	// return a dummy token
 	token := "token-" + req.Username + "-" + randHex(8)
 	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func handleProfile(c *gin.Context) {
+	// For demo purposes, return admin user profile
+	// In a real app, you'd extract user from token
+	u := users["admin"]
+	c.JSON(http.StatusOK, gin.H{
+		"name":  u.Name,
+		"email": u.Email,
+	})
 }
 
 func handleListEvents(c *gin.Context) {

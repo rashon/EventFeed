@@ -16,6 +16,7 @@ func setupRouter() *gin.Engine {
 	seedData() // Initialize data for tests
 	r := gin.Default()
 	r.POST("/login", handleLogin)
+	r.GET("/profile", handleProfile)
 	r.GET("/events", handleListEvents)
 	r.GET("/events/:id", handleGetEvent)
 	r.GET("/download/:file_id", handleDownload)
@@ -48,6 +49,20 @@ func TestHandleLogin(t *testing.T) {
 	var errResp map[string]string
 	json.Unmarshal(w.Body.Bytes(), &errResp)
 	assert.Equal(t, "invalid credentials", errResp["error"])
+}
+
+func TestHandleProfile(t *testing.T) {
+	r := setupRouter()
+
+	req, _ := http.NewRequest("GET", "/profile", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	var resp map[string]string
+	json.Unmarshal(w.Body.Bytes(), &resp)
+	assert.Equal(t, "Admin User", resp["name"])
+	assert.Equal(t, "admin@eventfeed.com", resp["email"])
 }
 
 func TestHandleListEvents(t *testing.T) {
