@@ -17,6 +17,21 @@ EventFeed is an Android application designed to help users monitor the event fee
 *   **State Management:** Kotlin Flows + StateFlow
 *   **Design:** Material Design 3 (Material3)
 
+## 🚀 Getting Started
+
+### Prerequisites
+
+*   Android Studio Hedgehog or newer.
+*   JDK 17 or newer.
+
+### Installation
+
+1.  **Clone the repository**
+2.  **Open in Android Studio**
+3.  **Update the backend base URL**  
+       Locate the `NetworkModule` used by your DI setup and update the base URL to point to your backend server.
+4.  **Build the project:**
+
 ## 🖥 Backend (Go)
 
 A small Go server provides the API used by the app. The repo contains a Go module (`go.mod`) and a lightweight HTTP server exposing the main endpoints used by the Android client.
@@ -37,9 +52,9 @@ Build and run:
 * cd backend   # or the folder that contains main/cmd
 * go build -o eventserver ./cmd/server
 * ./eventserver
-# or run directly:
 
-* go run ./cmd/server
+* or run directly:
+    * go run ./cmd/server
 
 # Docker
 * Build and run with Docker (if a Dockerfile is present):
@@ -50,21 +65,6 @@ Build and run:
 ## Development notes
 * The Go server is intentionally lightweight to make local testing easy.
 * If you change the server address/port, update the Android client baseUrl in NetworkModule (see installation step 3) to point to the running backend (for example http://10.0.2.2:8080 for the emulator).
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-*   Android Studio Hedgehog or newer.
-*   JDK 17 or newer.
-
-### Installation
-
-1.  **Clone the repository**
-2.  **Open in Android Studio**
-3.  **Update the backend base URL**  
-       Locate the `NetworkModule` used by your DI setup and update the base URL to point to your backend server.
-4.  **Build the project:**
 
 ### License
 
