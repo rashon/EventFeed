@@ -63,7 +63,7 @@ class EventDaoTest {
         val repo = EventsRepositoryImpl(client = client, baseUrl = "https://api", db = db)
 
         try {
-            repo.fetchAndCachePage(page = 0, pageSize = 20)
+            repo.fetchAndCachePage(pageSize = 20)
             fail("Expected exception to be thrown")
         } catch (e: RuntimeException) {
             assertEquals("network failure", e.message)

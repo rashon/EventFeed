@@ -21,13 +21,20 @@ class EventsRepositoryImpl(
     private val db: AppDatabase
 ) : EventsRepository {
 
-    override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> =
+    override var currentPage: Int = 0
+
+    override fun updateCurrentPage(page: Int) {
+        currentPage = page
+    }
+
+    override suspend fun fetchAndCachePage(pageSize: Int): List<Event> =
 
         withContext(Dispatchers.IO) {
+
             try {
 
                 val response: EventsResponseDto = client.get("$baseUrl/events") {
-                    parameter("page", page)
+                    parameter("page", currentPage)
                     parameter("size", pageSize)
                 }.body()
 

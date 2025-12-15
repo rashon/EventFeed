@@ -45,7 +45,14 @@ class EventDetailsVMTest {
 
         val repo = object : EventsRepository {
             override fun cachedEventsFlow(): Flow<List<Event>> = flowOf(emptyList())
-            override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> {
+
+            override fun updateCurrentPage(page: Int) {currentPage = page }
+
+            override var currentPage: Int
+                get() = 0
+                set(value) {}
+
+            override suspend fun fetchAndCachePage(pageSize: Int): List<Event> {
                 fetched = true
                 return emptyList()
             }
@@ -70,7 +77,13 @@ class EventDetailsVMTest {
     fun `refresh failure sets offline and error message`() = runBlocking {
         val repo = object : EventsRepository {
             override fun cachedEventsFlow(): Flow<List<Event>> = flowOf(emptyList())
-            override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> {
+
+            override fun updateCurrentPage(page: Int) {currentPage = page }
+
+            override var currentPage: Int
+                get() = 0
+                set(value) {}
+            override suspend fun fetchAndCachePage(pageSize: Int): List<Event> {
                 throw RuntimeException("network failure")
             }
         }

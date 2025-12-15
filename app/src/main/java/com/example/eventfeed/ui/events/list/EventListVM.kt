@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.eventfeed.data.event.EventsRepository
 import com.example.eventfeed.domain.model.Event
 import io.ktor.utils.io.ioDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +20,7 @@ class EventListVM(
     private val repo: EventsRepository
 ) : ViewModel() {
 
-    private val pageSize: Int = 20
+    val pageSize: Int = 20
     private val refreshIntervalMs: Long = 3_000L
 
     private val _events = MutableStateFlow<List<Event>>(emptyList())
@@ -39,7 +38,6 @@ class EventListVM(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    private var currentPage = 0
     private var isLastPageReached = false
     private var inFlight = false
 
@@ -64,6 +62,10 @@ class EventListVM(
                 tryPerformAutoRefresh()
             }
         }
+    }
+
+    fun updateCurrentPage(pageIndex: Int) {
+        repo.updateCurrentPage(pageIndex)
     }
 
     private suspend fun tryPerformAutoRefresh() {
@@ -93,16 +95,13 @@ class EventListVM(
 
         _error.value = null
 
-        currentPage = 0
-
         isLastPageReached = false
 
         try {
             _isLoading.value = true
 
-            // call repo; repo may throw on network error (caught below)
             val fetched = try {
-                repo.fetchAndCachePage(0, pageSize)
+                repo.fetchAndCachePage(pageSize)
             } catch (t: Throwable) {
                 // network error -> mark offline and keep cached data visible
                 _isOffline.value = true
@@ -113,11 +112,6 @@ class EventListVM(
             // if we reached here, fetch succeeded (even if empty)
             _isOffline.value = false
 
-            // if fetched is empty it might be no items on server; keep currentPage as 0
-            if (fetched.isNotEmpty()) {
-                // we fetched page 0 successfully; update page tracking if needed
-                currentPage = 0
-            }
         } finally {
             _isLoading.value = false
             _isRefreshing.value = false
@@ -141,10 +135,10 @@ class EventListVM(
 
                 try {
                     _isLoading.value = true
-                    val nextPage = currentPage + 1
+                    val nextPage = repo.currentPage + 1
 
                     val fetched = try {
-                        repo.fetchAndCachePage(nextPage, pageSize)
+                        repo.fetchAndCachePage(pageSize)
                     } catch (t: Throwable) {
                         _isOffline.value = true
                         _error.value = t.message ?: "Failed to load more"
@@ -156,7 +150,7 @@ class EventListVM(
                     if (fetched.isEmpty()) {
                         isLastPageReached = true
                     } else {
-                        currentPage = nextPage
+                        repo.updateCurrentPage(nextPage)
                     }
                 } catch (t: Throwable) {
                     _error.value = t.message ?: "Failed to load more"

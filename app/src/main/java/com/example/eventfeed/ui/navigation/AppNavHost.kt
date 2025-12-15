@@ -11,6 +11,9 @@ import com.example.eventfeed.ui.profile.UserProfileScreen
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
+
+    var lastAccessedEvent = 0
+
     NavHost(navController = navController, startDestination = "login") {
 
         composable("login") { LoginScreen(onLoginSuccess = { navController.navigate("events") }) }
@@ -18,11 +21,16 @@ fun AppNavHost(navController: NavHostController) {
         composable("events") {
             EventListScreen(
                 onOpen = { id -> navController.navigate("detail/$id") },
-                onProfileClicked = { navController.navigate("profile") })
+                onProfileClicked = { navController.navigate("profile") },
+                scrollToPosition = lastAccessedEvent
+            )
         }
 
         composable("detail/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: return@composable
+
+            lastAccessedEvent = id.toInt()
+
             EventDetailScreen(
                 eventId = id,
                 onBack = { navController.navigate("events") },

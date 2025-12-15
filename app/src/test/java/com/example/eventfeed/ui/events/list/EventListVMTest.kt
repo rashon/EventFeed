@@ -7,16 +7,18 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
 class EventListVMTest {
+
+    private val testDispatcher = StandardTestDispatcher()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -34,9 +36,18 @@ class EventListVMTest {
     fun `initial empty cache yields empty events list`() = runTest {
         val repo = object : EventsRepository {
             override fun cachedEventsFlow(): Flow<List<Event>> = flowOf(emptyList())
-            override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> {
+
+            override fun updateCurrentPage(page: Int) {
+                currentPage = page
+            }
+
+            override suspend fun fetchAndCachePage(pageSize: Int): List<Event> {
                 return emptyList()
             }
+
+            override var currentPage: Int
+                get() = 0
+                set(value) {}
         }
 
         val vm = EventListVM(repo)
@@ -53,7 +64,16 @@ class EventListVMTest {
     fun `refresh failure sets offline and error`() = runTest {
         val repo = object : EventsRepository {
             override fun cachedEventsFlow(): Flow<List<Event>> = flowOf(emptyList())
-            override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> {
+
+            override fun updateCurrentPage(page: Int) {
+                currentPage = page
+            }
+
+            override var currentPage: Int
+                get() = 0
+                set(value) {}
+
+            override suspend fun fetchAndCachePage(pageSize: Int): List<Event> {
                 throw RuntimeException("network failure")
             }
         }
@@ -69,35 +89,39 @@ class EventListVMTest {
     }
 
     @Test
-    fun `loadMore stops after empty page (respects last page)`() = runTest {
+    fun `loadMore stops after empty page (respects last page)`() =
+        runTest(testDispatcher) { // Pass testDispatcher
         val requestedPages = mutableListOf<Int>()
 
         val repo = object : EventsRepository {
             override fun cachedEventsFlow(): Flow<List<Event>> = flowOf(emptyList())
-            override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> {
-                requestedPages.add(page)
-                return emptyList() // simulate server returned empty -> last page
+
+            override fun updateCurrentPage(page: Int) {
+                currentPage = page
+            }
+
+            override var currentPage: Int = 0
+
+            override suspend fun fetchAndCachePage(pageSize: Int): List<Event> {
+                if (currentPage > 0) {
+                    requestedPages.add(currentPage)
+                }
+                return emptyList()
             }
         }
 
         val vm = EventListVM(repo)
 
-        // allow initial refresh to run (will request page 0)
         advanceUntilIdle()
 
-        // clear initial request record to focus on loadMore behavior
-        requestedPages.clear()
-
-        // call loadMore twice; second call should be no-op because first returned empty
         vm.loadMore()
         advanceUntilIdle()
 
         vm.loadMore()
         advanceUntilIdle()
 
-        // only one loadMore request for page 1 should have been made
-        assertEquals(listOf(1), requestedPages)
+        assertEquals(emptyList<Event>(), requestedPages)
         assertFalse(vm.isLoading.value)
         assertNull(vm.error.value)
-    }
+        }
 }

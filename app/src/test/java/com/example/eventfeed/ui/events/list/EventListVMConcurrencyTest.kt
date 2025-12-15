@@ -39,8 +39,8 @@ class EventListVMConcurrencyTest {
 
         override fun cachedEventsFlow() = flowOf(emptyList<Event>())
 
-        override suspend fun fetchAndCachePage(page: Int, pageSize: Int): List<Event> {
-            requestedPages.add(page)
+        override suspend fun fetchAndCachePage(pageSize: Int): List<Event> {
+            requestedPages.add(currentPage)
             val now = activeCalls.incrementAndGet()
             maxActive.updateAndGet { prev -> if (now > prev) now else prev }
             try {
@@ -50,6 +50,12 @@ class EventListVMConcurrencyTest {
             }
             return emptyList()
         }
+
+        override fun updateCurrentPage(page: Int) {currentPage = page }
+
+        override var currentPage: Int
+            get() = 0
+            set(value) {}
 
         fun releaseAll() {
             if (!blocker.isCompleted) blocker.complete(Unit)

@@ -85,7 +85,7 @@ class EventDetailsVM(
         try {
             try {
 
-                repo.fetchAndCachePage(0, pageSize)
+                repo.fetchAndCachePage(pageSize)
 
                 _isOffline.value = false
 

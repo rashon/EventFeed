@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -30,13 +31,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -45,7 +50,8 @@ import org.koin.androidx.compose.koinViewModel
 fun EventListScreen(
     onOpen: (Long) -> Unit,
     onProfileClicked: () -> Unit,
-    viewModel: EventListVM = koinViewModel()
+    viewModel: EventListVM = koinViewModel(),
+    scrollToPosition: Int = 0
 ) {
 
     val events by viewModel.events.collectAsStateWithLifecycle()
@@ -53,7 +59,39 @@ fun EventListScreen(
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
+
     val scope = rememberCoroutineScope()
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, viewModel) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .map { visibleItems ->
+                // Get the first visible item index
+                val firstIndex = visibleItems.firstOrNull()?.index ?: 0
+                val size = visibleItems.size
+
+                val focusedItem = firstIndex + size / 2
+
+                focusedItem / viewModel.pageSize
+            }
+            .distinctUntilChanged()
+            .collect { pageIndex ->
+                viewModel.updateCurrentPage(pageIndex)
+            }
+    }
+
+    LaunchedEffect(scrollToPosition, listState) {
+        if (scrollToPosition > 0) {
+            try {
+                listState.requestScrollToItem(
+                    scrollToPosition - 1
+                )
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -134,8 +172,10 @@ fun EventListScreen(
                     Text("No events")
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+
                     itemsIndexed(events) { index, e ->
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -146,13 +186,17 @@ fun EventListScreen(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
+
                             Column(Modifier.padding(16.dp)) {
+
                                 Text(
                                     e.title,
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+
                                 Spacer(Modifier.height(6.dp))
+
                                 Text(
                                     e.description ?: "",
                                     maxLines = 2,

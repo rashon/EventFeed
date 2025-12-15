@@ -68,7 +68,7 @@ class EventsRepositoryImplTest {
 
         try {
             // 3. This triggers the client, which triggers the MockEngine, which throws the error
-            repo.fetchAndCachePage(page = 0, pageSize = 20)
+            repo.fetchAndCachePage(pageSize = 20)
             fail("Expected exception to be thrown")
         } catch (e: Exception) {
             // 4. Verify the error message matches what we threw in MockEngine
