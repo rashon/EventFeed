@@ -5,14 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventfeed.data.event.EventsRepository
 import com.example.eventfeed.domain.model.Event
-import kotlinx.coroutines.Dispatchers
+import io.ktor.utils.io.ioDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Stable
 class EventDetailsVM(
@@ -76,7 +75,8 @@ class EventDetailsVM(
         }
     }
 
-    private suspend fun performRefresh() = withContext(Dispatchers.IO) {
+    private fun performRefresh() = viewModelScope.launch(ioDispatcher()) {
+
 
         _isLoading.value = true
 

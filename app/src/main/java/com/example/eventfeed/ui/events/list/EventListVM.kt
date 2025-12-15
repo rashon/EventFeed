@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventfeed.data.event.EventsRepository
 import com.example.eventfeed.domain.model.Event
+import io.ktor.utils.io.ioDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,8 +56,8 @@ class EventListVM(
         refresh()
 
         // periodic auto-refresh every 5 seconds (background)
-        viewModelScope.launch(Dispatchers.IO) {
-            while (isActive) {
+        viewModelScope.launch(ioDispatcher()) {
+        while (isActive) {
 
                 delay(refreshIntervalMs)
                 // attempt auto-refresh in background without forcing UI "refreshing" indicator
@@ -124,44 +125,45 @@ class EventListVM(
     }
 
     fun loadMore() {
+        // 1. Quick check to avoid launching if obviously busy
+        if (inFlight || isLastPageReached || _isRefreshing.value) return
 
-        if (inFlight || isLastPageReached) return
-
-        inFlight = true
         viewModelScope.launch {
+            // 2. Acquire the SAME lock used by refresh()
+            // This ensures loadMore waits if refresh is running, and vice versa.
+            refreshMutex.withLock {
 
-            _error.value = null
+                // 3. Re-check state after acquiring lock (standard double-check locking)
+                if (inFlight || isLastPageReached || _isRefreshing.value) return@launch
 
-            try {
+                inFlight = true
+                _error.value = null
 
-                _isLoading.value = true
+                try {
+                    _isLoading.value = true
+                    val nextPage = currentPage + 1
 
-                val nextPage = currentPage + 1
+                    val fetched = try {
+                        repo.fetchAndCachePage(nextPage, pageSize)
+                    } catch (t: Throwable) {
+                        _isOffline.value = true
+                        _error.value = t.message ?: "Failed to load more"
+                        return@launch
+                    }
 
-                val fetched = try {
-                    repo.fetchAndCachePage(nextPage, pageSize)
+                    _isOffline.value = false
+
+                    if (fetched.isEmpty()) {
+                        isLastPageReached = true
+                    } else {
+                        currentPage = nextPage
+                    }
                 } catch (t: Throwable) {
-
-                    // network error while loading more -> mark offline
-                    _isOffline.value = true
                     _error.value = t.message ?: "Failed to load more"
-                    return@launch
+                } finally {
+                    _isLoading.value = false
+                    inFlight = false
                 }
-
-                _isOffline.value = false
-
-                if (fetched.isEmpty()) {
-                    isLastPageReached = true
-                } else {
-                    currentPage = nextPage
-                }
-            } catch (t: Throwable) {
-
-                _error.value = t.message ?: "Failed to load more"
-            } finally {
-
-                _isLoading.value = false
-                inFlight = false
             }
         }
     }

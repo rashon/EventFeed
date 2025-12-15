@@ -5,12 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.eventfeed.data.profile.UserProfileRepository
 import com.example.eventfeed.domain.model.UserProfile
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Stable
 class UserProfileVM(
@@ -31,12 +29,14 @@ class UserProfileVM(
     }
 
     fun refresh() {
+
         viewModelScope.launch {
-            performRefresh()
+
+        performRefresh()
         }
     }
 
-    private suspend fun performRefresh() = withContext(Dispatchers.IO) {
+    private fun performRefresh() = viewModelScope.launch {
 
         _isLoading.value = true
 
